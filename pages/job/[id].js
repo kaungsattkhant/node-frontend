@@ -5,6 +5,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import { useRouter } from "next/router";
 
 const JobPage = () => {
+  const [authUser, setAuthUser] = useState(null); // To store auth_user
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
@@ -15,6 +16,7 @@ const JobPage = () => {
     company: "",
     education: "",
     description: "",
+    user_id: "",
     location_id: "",
     function_ids: [],
   });
@@ -24,7 +26,13 @@ const JobPage = () => {
   useEffect(() => {
     // Fetch locations and functions when the component mounts
     // console.log(baseUrl);
+
     const fetchData = async () => {
+      const user = localStorage.getItem("user");
+      console.log(user);
+      if (user) {
+        setAuthUser(JSON.parse(user)); // Parse the user and set it in state
+      }
       const token = localStorage.getItem("jwtToken");
       try {
         // const locationsResponse = await axios.get('/api/locations');
@@ -86,33 +94,41 @@ const JobPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const token = localStorage.getItem("jwtToken");
-    try {
-      let response;
-      if (isEditing) {
-        // Update existing job
-        // await axios.put(`/api/jobs/${formData.id}`, formData);
-        response = await axios.post(`${baseUrl}/api/jobs`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-      } else {
-        // Create new job
-        // const response = await axios.post(`${baseUrl}/api/jobs`, formData);
-        response = await axios.post(`${baseUrl}/api/jobs`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+    if (authUser) {
+      // const createdFormData = {
+      //   ...formData, // Your form data
+      //   user_id: authUser.id, // Add user_id from auth_user
+      // };
+      formData.user_id = authUser.id;
+      try {
+        let response;
+        if (isEditing) {
+          // Update existing job
+          // await axios.put(`/api/jobs/${formData.id}`, formData);
+          response = await axios.post(`${baseUrl}/api/jobs`, formData, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+        } else {
+          // Create new job
+          response = await axios.post(`${baseUrl}/api/jobs`, formData, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+        }
+        if (response.status == 200) {
+          router.push("/job");
+        }
+        // Handle successful submission (e.g., redirect or show a success message)
+      } catch (error) {
+        console.error("Error submitting form:", error);
       }
-      if (response.status == 200) {
-        router.push("/job");
-      }
-      // Handle successful submission (e.g., redirect or show a success message)
-    } catch (error) {
-      console.error("Error submitting form:", error);
+    } else {
+      router.push("/auth/login");
     }
   };
 

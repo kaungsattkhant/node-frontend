@@ -17,6 +17,7 @@ const JobPage = () => {
     company: "",
     education: "",
     description: "",
+    user_id: "",
     function_ids: [],
   });
   const [locations, setLocations] = useState([]);
@@ -24,7 +25,6 @@ const JobPage = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
-    console.log(token);
     // Fetch locations and functions when the component mounts
     const fetchData = async () => {
       try {

@@ -17,7 +17,6 @@ const JobForm = ({
     label: location.name,
   }));
 
-  console.log(formData);
 
   const functionOptions = functions.map((func) => ({
     value: func.id,

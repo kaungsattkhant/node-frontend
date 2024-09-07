@@ -7,7 +7,7 @@ function edit() {
     username: "",
     phone_number: "",
     password: "",
-    id:"",
+    id: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter(); // Initialize the router
@@ -15,15 +15,22 @@ function edit() {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   useEffect(() => {
     // Fetch user data if ID is available
+    const token = localStorage.getItem("jwtToken");
+
     if (id) {
       setIsEditing(true);
-      fetch(`${baseUrl}/api/users/${id}`)
+      fetch(`${baseUrl}/api/users/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
         .then((response) => response.json())
         .then((res) => {
-        //   console.log(res.data);
+          //   console.log(res.data);
           const data = res.data;
           setFormData({
-            id:data.id,
+            id: data.id,
             username: data.username,
             phone_number: data.phone_number,
             password: "", // Do not pre-fill password
@@ -33,6 +40,8 @@ function edit() {
     }
   }, [id, baseUrl]);
   const handleSubmit = (e) => {
+    const token = localStorage.getItem("jwtToken");
+
     const url = isEditing
       ? `${baseUrl}/api/users/${id}`
       : `${baseUrl}/api/users`;
@@ -40,6 +49,7 @@ function edit() {
     fetch(`${baseUrl}/api/users`, {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formData),
@@ -120,27 +130,25 @@ function edit() {
           </div>
 
           {/* Password Field */}
-          {
-            !isEditing && (
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="password"
-                >
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded"
-                  required={!isEditing}
-                />
-              </div>
-            )
-          }
+          {!isEditing && (
+            <div className="mb-4">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="password"
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded"
+                required={!isEditing}
+              />
+            </div>
+          )}
 
           {/* Submit Button */}
           <div className="flex justify-center">

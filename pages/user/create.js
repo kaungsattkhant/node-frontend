@@ -31,6 +31,7 @@ function create() {
     }
   }, [id, baseUrl]);
   const handleSubmit = (e) => {
+    const token = localStorage.getItem("jwtToken");
     const url = isEditing
       ? `${baseUrl}/api/users/${id}`
       : `${baseUrl}/api/users`;
@@ -38,6 +39,7 @@ function create() {
     fetch(url, {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formData),

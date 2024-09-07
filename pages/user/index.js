@@ -9,20 +9,24 @@ function index() {
   const router = useRouter();
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const handleDelete = async (id) => {
+    const token = localStorage.getItem("jwtToken");
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         await fetch(`${baseUrl}/api/users/${id}`, {
-          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          method: "DELETE",
         });
         // Remove the deleted user from the state
-        setUsers(users.filter(user => user.id !== id));
+        setUsers(users.filter((user) => user.id !== id));
       } catch (error) {
-        console.error('Error deleting user:', error);
+        console.error("Error deleting user:", error);
       }
     }
   };
 
-  
   // useEffect(() => {
   //   fetch(`${baseUrl}/api/users`)
   //     .then((response) => response.json())
@@ -31,37 +35,36 @@ function index() {
   //     });
   // }, []);
 
-
   useEffect(() => {
     const fetchUsers = async () => {
-      const token = localStorage.getItem('jwtToken'); // Get token from localStorage
+      const token = localStorage.getItem("jwtToken"); // Get token from localStorage
       if (!token) {
-        console.log('No token found, redirecting to login');
-        router.push('/auth/login');
+        console.log("No token found, redirecting to login");
+        router.push("/auth/login");
         return; // Exit early if no token
       }
       try {
         const response = await fetch(`${baseUrl}/api/users`, {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Authorization': `Bearer ${token}`, // Ensure token is passed in headers
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`, // Ensure token is passed in headers
+            "Content-Type": "application/json",
+          },
         });
         if (response.status === 403) {
-          console.log('Access denied. Redirecting to login.');
-          router.push('/auth/login');
+          console.log("Access denied. Redirecting to login.");
+          router.push("/auth/login");
         } else if (response.status === 401) {
-          console.log('Unauthorized. Redirecting to login.');
-          router.push('/auth/login');
+          console.log("Unauthorized. Redirecting to login.");
+          router.push("/auth/login");
         } else if (response.ok) {
           const data = await response.json();
           setUsers(data.data);
         } else {
-          console.error('Unexpected response status:', response.status);
+          console.error("Unexpected response status:", response.status);
         }
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
       }
     };
 
@@ -96,9 +99,9 @@ function index() {
             </thead>
 
             <tbody>
-              {users.map((user,index) => (
+              {users.map((user, index) => (
                 <tr key={user.id}>
-                  <td className="border px-4 py-2">{index+1}</td>
+                  <td className="border px-4 py-2">{index + 1}</td>
                   <td className="border px-4 py-2">{user.username}</td>
                   <td className="border px-4 py-2">{user.phone_number}</td>
                   <td className="border px-4 py-2">
