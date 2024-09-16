@@ -17,7 +17,6 @@ const JobForm = ({
     label: location.name,
   }));
 
-
   const functionOptions = functions.map((func) => ({
     value: func.id,
     label: func.name,
@@ -112,7 +111,9 @@ const JobForm = ({
               options={functionOptions}
               onChange={handleFunctionChange}
               value={functionOptions.filter((option) =>
-                formData.function_ids.includes(option.value)
+                formData.function_ids
+                  .map((f) => f.function_id)
+                  .includes(option.value)
               )}
             />
           </div>
